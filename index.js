@@ -6,7 +6,7 @@ const app = express();
 import dotenv from "dotenv";
 dotenv.config();
 import path from "path";
-const port = process.env.PORT || 5000 ;
+const port = process.env.PORT;
 import Notice from "./models/Notice.js";
 import EventPoster from "./models/Poster.js";
 import User from "./models/User.js";
@@ -45,7 +45,7 @@ import cors from "cors";
 
 const allowedOrigins = [
   'http://localhost:5173', // local dev
-  'https://seb-frontend-git-main-the-social-engineers-boards-projects.vercel.app' // your deployed frontend
+  'https://seb-frontend.vercel.app' // your deployed frontend
 ];
 
 app.use(express.json());
@@ -72,15 +72,27 @@ import { isAdmin, isLoggedIn } from "./config/middleware.js";
 app.set("view engine", "ejs");
 
 
+// app.use(session({
+//   secret: process.env.SECRETKEY,
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     httpOnly: true,
+//     secure: false,          // must be false for localhost
+//     sameSite: 'lax',        // use 'lax' for dev; 'none' + secure:true for prod
+//     maxAge: 24 * 60 * 60 * 1000 // 1 day
+//   }
+// }));
+
 app.use(session({
   secret: process.env.SECRETKEY,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,          // must be false for localhost
-    sameSite: 'lax',        // use 'lax' for dev; 'none' + secure:true for prod
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    secure: process.env.NODE_ENV === "production", // true on prod (https)
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -169,35 +181,18 @@ app.get(
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// // Callback URL
-// app.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", { failureRedirect: "/login" }),
-//   (req, res) => {
-//     // Successful login
-//     res.redirect("http://localhost:5173/api/UploadNotice"); 
-//   }
-// );
-
-// // Logout
-// app.get("/logout", (req, res) => {
-//   req.logout(err => {
-//     if (err) console.error(err);
-//     res.redirect("http://localhost:5173/");
-//   });
-// });
-
-const FRONTEND_URL = process.env.FRONTEND_URL;
-
-// Google OAuth callback
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res) => {
-    // Redirect after successful login
-    res.redirect(`${FRONTEND_URL}/api/UploadNotice`);
-  }
-);
+    
+    const FRONTEND_URL = process.env.FRONTEND_URL;
+    
+    // Google OAuth callback
+    app.get(
+      "/auth/google/callback",
+      passport.authenticate("google", { failureRedirect: "/login" }),
+      (req, res) => {
+        // Redirect after successful login
+        res.redirect(`${FRONTEND_URL}/`);
+      }
+    );
 
 // Logout route
 app.get("/logout", (req, res) => {
@@ -211,8 +206,3 @@ app.get("/logout", (req, res) => {
 app.listen(port, ()=>{
   console.log("working on port " + port);
 })
-// // Protected route example
-// app.get("/dashboard", (req, res) => {
-//   if (!req.isAuthenticated()) return res.redirect("/login");
-//   res.json({ user: req.user });
-// });
