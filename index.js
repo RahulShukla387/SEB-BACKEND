@@ -169,23 +169,45 @@ app.get(
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// Callback URL
+// // Callback URL
+// app.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/login" }),
+//   (req, res) => {
+//     // Successful login
+//     res.redirect("http://localhost:5173/api/UploadNotice"); 
+//   }
+// );
+
+// // Logout
+// app.get("/logout", (req, res) => {
+//   req.logout(err => {
+//     if (err) console.error(err);
+//     res.redirect("http://localhost:5173/");
+//   });
+// });
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+// Google OAuth callback
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    // Successful login
-    res.redirect("http://localhost:5173/api/UploadNotice"); 
+    // Redirect after successful login
+    res.redirect(`${FRONTEND_URL}/api/UploadNotice`);
   }
 );
 
-// Logout
+// Logout route
 app.get("/logout", (req, res) => {
   req.logout(err => {
     if (err) console.error(err);
-    res.redirect("http://localhost:5173/");
+    res.redirect(`${FRONTEND_URL}/`);
   });
 });
+
+
 app.listen(port, ()=>{
   console.log("working on port " + port);
 })
