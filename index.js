@@ -10,6 +10,7 @@ const port = process.env.PORT;
 import Notice from "./models/Notice.js";
 import EventPoster from "./models/Poster.js";
 import User from "./models/User.js";
+import MongoStore from 'connect-mongo';
 
 //todo if you using import you have to write this extra means have to define explicitly;
 import { fileURLToPath } from "url";
@@ -93,11 +94,15 @@ app.use(session({
   secret: process.env.SECRETKEY,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URL, // your MongoDB connection string
+    collectionName: 'sessions'
+  }),
   cookie: {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production", // true on prod (https)
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
   }
 }));
 
