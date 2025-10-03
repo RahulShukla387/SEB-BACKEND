@@ -58,7 +58,6 @@ app.use(express.json());
 // import session from "express-session";
 import passport from "passport";
  import userConfig from "./config/userConfig.js";
- import jwt from "./config/jwt.js";
 // import {User} from "./models/User.js";
 import { isAdmin, isLoggedIn } from "./config/middleware.js";
 app.set("view engine", "ejs");
