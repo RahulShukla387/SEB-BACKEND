@@ -44,24 +44,29 @@ import cors from "cors";
 
 
 const allowedOrigins = [
-  'http://localhost:5173', // local dev
-  'https://seb-frontend.vercel.app' // your deployed frontend
+  "http://localhost:5173",        // local development
+  "https://seb-frontend.vercel.app" // deployed frontend
 ];
 
+// ✅ CORS middleware
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like curl, Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"), false);
+    }
+  },
+  credentials: true // ✅ Important: allows cookies/sessions
+}));
+
+// ✅ Needed so Express can read JSON request bodies
 app.use(express.json());
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like curl, postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-}));
+
 
 //todo Importing the session and passport for authentication.
 import session from "express-session";
@@ -90,9 +95,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
     secure: process.env.NODE_ENV === "production", // true on prod (https)
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -120,12 +125,20 @@ app.post("/api/UploadNotice", isLoggedIn, isAdmin, upload.single("file"), async 
       return res.status(400).json({ error: "No file uploaded" });
     }
 
+    // const newNotice = new Notice({
+    //   title: req.body.noticeTitle,
+    //   imgUrl: req.file.path,        // secure_url from Cloudinary
+    //   public_id: req.file.filename, // public_id from Cloudinary
+    //   originalName: req.file.originalname 
+    // });
+
     const newNotice = new Notice({
-      title: req.body.noticeTitle,
-      imgUrl: req.file.path,        // secure_url from Cloudinary
-      public_id: req.file.filename, // public_id from Cloudinary
-      originalName: req.file.originalname 
-    });
+  title: req.body.noticeTitle,
+  imgUrl: req.file.secure_url,       // ✅ correct Cloudinary URL
+  public_id: req.file.filename || req.file.public_id, // use actual public_id
+  originalName: req.file.originalname 
+});
+
     await newNotice.save();
     console.log("Saved notice:", newNotice);
 
@@ -167,7 +180,7 @@ app.delete("/api/notice/:id", async (req, res) => {
 // }
 // dlt();
 // const print = async ()=>{
-//   console.log( await User.find({}) );
+//   console.log( await Notice.find({}) );
 // }
 // print();
 // app.listen(port,()=>{
@@ -190,7 +203,7 @@ app.get(
       passport.authenticate("google", { failureRedirect: "/login" }),
       (req, res) => {
         // Redirect after successful login
-        res.redirect(`${FRONTEND_URL}/`);
+        res.redirect(`${FRONTEND_URL}/api/UploadNotice`);
       }
     );
 
