@@ -16,7 +16,7 @@
 
 //todo Auth through jwt
 
-import { verifyToken } from "../utils/jwt.js";
+import { verifyToken } from "./jwt.js";
 
 export function isLoggedIn(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1] || req.cookies?.token;
