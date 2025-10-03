@@ -55,9 +55,10 @@ app.use(express.json());
 
 
 //todo Importing the session and passport for authentication.
-import session from "express-session";
+// import session from "express-session";
 import passport from "passport";
  import userConfig from "./config/userConfig.js";
+ import jwt from "./config/jwt.js";
 // import {User} from "./models/User.js";
 import { isAdmin, isLoggedIn } from "./config/middleware.js";
 app.set("view engine", "ejs");
@@ -92,7 +93,7 @@ app.use(session({
 }));
 
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 // Configure Google strategy
 // passportConfig(passport);
 userConfig(passport);
@@ -158,7 +159,7 @@ app.delete("/api/notice/:id", async (req, res) => {
 
 
 
-  app.get("/api/debug", (req, res) => {
+  app.get("/api/debug", isLoggedIn, (req, res) => {
   res.json({
     isAuthenticated: req.isAuthenticated(),
     user: req.user || null
@@ -193,7 +194,13 @@ app.get(
       passport.authenticate("google", { failureRedirect: "/login" }),
       (req, res) => {
         // Redirect after successful login
-        res.redirect(`${FRONTEND_URL}/Upload`);
+        // res.redirect(`${FRONTEND_URL}/Upload`);
+            // Generate JWT after successful login
+          const token = generateToken(req.user);
+
+         res.redirect(`${process.env.FRONTEND_URL}/uploadNotice?token=${token}`);
+
+
       }
     );
 
