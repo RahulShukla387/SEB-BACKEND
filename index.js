@@ -34,6 +34,7 @@ const upload = multer({ storage: storage });
 import fs from "fs";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from "crypto";
+import { generateToken } from "./config/jwt.js";
 
 //todo connecting with frontend 
 import cors from "cors";
