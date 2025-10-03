@@ -75,21 +75,21 @@ app.set("view engine", "ejs");
 //   }
 // }));
 
-app.use(session({
-  secret: process.env.SECRETKEY,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.URL, // your MongoDB connection string
-    collectionName: 'sessions'
-  }),
-  cookie: {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
-  }
-}));
+// app.use(session({
+//   secret: process.env.SECRETKEY,
+//   resave: false,
+//   saveUninitialized: false,
+//   store: MongoStore.create({
+//     mongoUrl: process.env.URL, // your MongoDB connection string
+//     collectionName: 'sessions'
+//   }),
+//   cookie: {
+//     httpOnly: true,
+//     maxAge: 24 * 60 * 60 * 1000,
+//     secure: process.env.NODE_ENV === "production",
+//     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+//   }
+// }));
 
 app.use(passport.initialize());
 // app.use(passport.session());
