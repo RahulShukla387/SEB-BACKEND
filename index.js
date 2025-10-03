@@ -188,20 +188,29 @@ app.get(
     const FRONTEND_URL = process.env.FRONTEND_URL;
     
     // Google OAuth callback
+    // app.get(
+    //   "/auth/google/callback",
+    //   passport.authenticate("google", { failureRedirect: "/login" }),
+    //   (req, res) => {
+    //     // Redirect after successful login
+    //     // res.redirect(`${FRONTEND_URL}/Upload`);
+    //         // Generate JWT after successful login
+    //       const token = generateToken(req.user);
+
+    //      res.redirect(`${process.env.FRONTEND_URL}/uploadNotice?token=${token}`);
+
+
+    //   }
+    // );
+
     app.get(
-      "/auth/google/callback",
-      passport.authenticate("google", { failureRedirect: "/login" }),
-      (req, res) => {
-        // Redirect after successful login
-        // res.redirect(`${FRONTEND_URL}/Upload`);
-            // Generate JWT after successful login
-          const token = generateToken(req.user);
-
-         res.redirect(`${process.env.FRONTEND_URL}/uploadNotice?token=${token}`);
-
-
-      }
-    );
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login", session: false }),
+  (req, res) => {
+    const token = generateToken(req.user); // from jwt.js
+    res.redirect(`${process.env.FRONTEND_URL}/uploadNotice?token=${token}`);
+  }
+);
 
 // Logout route
 app.get("/logout", (req, res) => {
