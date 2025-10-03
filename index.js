@@ -44,24 +44,9 @@ import cors from "cors";
 // }));
 
 
-const allowedOrigins = [
-  "http://localhost:5173",        // local development
-  "https://seb-frontend.vercel.app" // deployed frontend
-];
-
-// ✅ CORS middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like curl, Postman)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"), false);
-    }
-  },
-  credentials: true // ✅ Important: allows cookies/sessions
+  origin: process.env.FRONTEND_URL || "http://localhost:5173", // your frontend
+  credentials: true // important to allow cookies
 }));
 
 // ✅ Needed so Express can read JSON request bodies
@@ -208,7 +193,7 @@ app.get(
       passport.authenticate("google", { failureRedirect: "/login" }),
       (req, res) => {
         // Redirect after successful login
-        res.redirect(`${FRONTEND_URL}/api/UploadNotice`);
+        res.redirect(`${FRONTEND_URL}/Upload`);
       }
     );
 
