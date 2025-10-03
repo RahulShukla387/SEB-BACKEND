@@ -182,7 +182,7 @@ app.delete("/api/notice/:id", async (req, res) => {
 // Start Google login
 app.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile",  "email"],  prompt: "select_account",  session: false,  })
 );
 
     
