@@ -125,11 +125,10 @@ app.post("/api/UploadNotice", isLoggedIn, isAdmin, upload.single("file"), async 
 
     const newNotice = new Notice({
   title: req.body.noticeTitle,
-  imgUrl: req.file.secure_url,       // ✅ correct Cloudinary URL
+  imgUrl: req.file.path,       // ✅ correct Cloudinary URL
   public_id: req.file.filename || req.file.public_id, // use actual public_id
   originalName: req.file.originalname 
 });
-
     await newNotice.save();
     console.log("Saved notice:", newNotice);
 
@@ -170,13 +169,13 @@ app.delete("/api/notice/:id", async (req, res) => {
 //   await Notice.deleteMany({});
 // }
 // dlt();
-// const print = async ()=>{
-//   console.log( await Notice.find({}) );
-// }
-// print();
-// app.listen(port,()=>{
-//     console.log("Website Working Properly on port  " + port);
-// })
+const print = async ()=>{
+  console.log( await Notice.find({}) );
+}
+print();
+app.listen(port,()=>{
+    console.log("Website Working Properly on port  " + port);
+})
 
 // //todo Google login
 // Start Google login
@@ -209,7 +208,7 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/login", session: false }),
   (req, res) => {
     const token = generateToken(req.user); // from jwt.js
-    res.redirect(`${process.env.FRONTEND_URL}/uploadNotice?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/UploadNotice?token=${token}`);
   }
 );
 
