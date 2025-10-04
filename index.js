@@ -11,6 +11,7 @@ import Notice from "./models/Notice.js";
 import EventPoster from "./models/Poster.js";
 import User from "./models/User.js";
 import MongoStore from 'connect-mongo';
+import fetch from "node-fetch";
 
 //todo if you using import you have to write this extra means have to define explicitly;
 import { fileURLToPath } from "url";
@@ -154,8 +155,24 @@ app.delete("/api/notice/:id", async (req, res) => {
     res.status(500).json({ message: "Error deleting notice" });
   }
 });
+ //todo To download file perfectly
 
+app.get("/api/download/:id", async (req, res) => {
+  const notice = await Notice.findById(req.params.id);
+  if (!notice) return res.status(404).send("Not found");
 
+  const fileUrl = notice.imgUrl;
+  const filename = notice.originalName || notice.title || "notice";
+
+  // Fetch the file from Cloudinary
+  const response = await fetch(fileUrl);
+  if (!response.ok) return res.status(500).send("Failed to fetch file");
+
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.setHeader("Content-Type", response.headers.get("content-type"));
+
+  response.body.pipe(res);
+});
 
 
   app.get("/api/debug", isLoggedIn, (req, res) => {
